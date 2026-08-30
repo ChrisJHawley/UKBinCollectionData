@@ -19,6 +19,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.util import dt as dt_util
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_time_change
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
@@ -133,6 +134,30 @@ class UKBinCollectionDataSensor(CoordinatorEntity, SensorEntity):
         self._days = None
         self.update_state()
 
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks once the entity is added to hass."""
+        await super().async_added_to_hass()
+        # The state ("In N days" / "Tomorrow" / "Today") and the days attribute
+        # are relative to the current date, but the coordinator may only refresh
+        # every few hours (or not at all in manual-refresh mode). Recompute at
+        # local midnight so the countdown stays correct between data fetches
+        # instead of being frozen at the value from the last coordinator update.
+        self.async_on_remove(
+            async_track_time_change(
+                self.hass,
+                self._async_midnight_update,
+                hour=0,
+                minute=0,
+                second=0,
+            )
+        )
+
+    @callback
+    def _async_midnight_update(self, now: datetime) -> None:
+        """Recompute the date-relative state at local midnight."""
+        self.update_state()
+        self.async_write_ha_state()
+
     @property
     def device_info(self) -> dict:
         """Return device information for device registry."""
@@ -159,10 +184,15 @@ class UKBinCollectionDataSensor(CoordinatorEntity, SensorEntity):
             self._days = (bin_date - now).days
             self._state = self.calculate_state()
         else:
-            _LOGGER.warning(
-                f"{LOG_PREFIX} Data for bin type '{self._bin_type}' is missing."
+            # Not every bin type has an upcoming date every update - e.g. a
+            # council-run garden waste service that's out of season. That's
+            # not an error, so show a friendly state rather than going
+            # Unavailable (availability itself is driven by whether the
+            # coordinator update as a whole succeeded).
+            _LOGGER.debug(
+                f"{LOG_PREFIX} No upcoming date for bin type '{self._bin_type}'."
             )
-            self._state = "Unknown"
+            self._state = "No collections scheduled"
             self._days = None
             self._next_collection = None
 
@@ -231,7 +261,7 @@ class UKBinCollectionDataSensor(CoordinatorEntity, SensorEntity):
     @property
     def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self._state != "Unknown"
+        return self.coordinator.last_update_success
 
     @property
     def unique_id(self) -> str:

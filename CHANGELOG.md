@@ -1,4 +1,161 @@
 =======
+## 0.171.3 (2026-08-03)
+
+### Fix
+
+- #2204 recompute bin countdown at local midnight
+
+## 0.171.2 (2026-08-02)
+
+### Fix
+
+- #2193 add migration to restore auto-refresh for existing entries
+- remove dead migration that forced manual_refresh_only=True
+- preserve update_interval, label options checkbox, add flow tests
+- invert refresh checkbox to positive auto_refresh_enabled
+
+### Refactor
+
+- extract shared auto_refresh_enabled default resolver
+
+## 0.171.1 (2026-07-26)
+
+### Fix
+
+- **broxtowe**: rewrite scraper for the council's rebuilt self-service form
+- **broxtowe**: match form fields by role suffix, not exact generated id
+
+## 0.171.0 (2026-07-25)
+
+### Feat
+
+- **midsuffolk**: surface the Following Collection Date column
+
+### Fix
+
+- **lichfield,midsuffolk**: address CodeRabbit review findings
+- **ha**: correct inverted manual_refresh_only logic, expose Fenland postcode
+- **lichfield**: pair bin cards with their own date, not by position
+- **bedfordshire**: rewrite parser for council site redesign
+- correct wrong source URLs for Cardiff and Blackburn with Darwen
+
+## 0.170.6 (2026-07-16)
+
+### Fix
+
+- **councils**: rewrite PowysCouncil as pure HTTP, no browser (#2175)
+
+## 0.170.5 (2026-07-15)
+
+### Fix
+
+- **councils**: anchor Babergh address regex; clear error on backend fault (#2173)
+
+## 0.170.4 (2026-07-15)
+
+### Fix
+
+- **councils**: dedupe EalingCouncil into LondonBoroughEaling (#1884)
+
+## 0.170.3 (2026-07-14)
+
+### Fix
+
+- **councils**: rewrite Slough and Sunderland as pure HTTP, no browser
+- **councils**: rewrite HaringeyCouncil for the new JSON API (#2113)
+
+## 0.170.2 (2026-07-14)
+
+### Fix
+
+- #2168 NorthWestLeicestershire - sync HA config metadata with scraper
+
+## 0.170.1 (2026-07-14)
+
+### Fix
+
+- FlintshireCountyCouncil - skip schedule-note rows, not a bin type
+- #2153 LincolnCouncil - roll forward a stale anchor date
+
+## 0.170.0 (2026-07-13)
+
+### BREAKING CHANGE
+
+- the scraper now takes a real postcode and house
+number/name as separate parameters, matching every other council's
+convention, instead of the whole address crammed into the postcode
+field (a quirk of the old iframe's free-text search box that no longer
+applies now the platform has changed entirely). Updated the wiki_note
+and test fixture accordingly.
+
+### Fix
+
+- DartfordBoroughCouncil - send a User-Agent, fail loudly if no table
+- SwaleBoroughCouncil - update form field ids, not a Cloudflare block
+- MidAndEastAntrimBoroughCouncil - rewrite for WhiteSpace WRP platform
+- BarkingDagenham - dismiss overlays blocking the postcode field
+- AngusCouncil - update selectors for redesigned AchieveForms flow
+- EastLindseyDistrictCouncil - match form fields by stable suffix
+
+## 0.169.1 (2026-07-13)
+
+### Fix
+
+- EastDevonDC - identify scraper with a User-Agent header
+- #2158 AberdeenshireCouncil - stop fetching the unused root URL
+
+## 0.169.0 (2026-07-13)
+
+### BREAKING CHANGE
+
+- automations checking for sensor.<name>_<bin_type> state
+== "unavailable" to mean "no data for this bin type" will stop firing;
+check for state == "No collections scheduled" instead.
+
+### Fix
+
+- #2127 detect EnvironmentFirst DB outage, raise a clear error
+- #1672 BREAKING CHANGE - bin sensor no longer goes Unavailable for "no scheduled date"
+- #1672 show "No collections scheduled" instead of Unavailable
+- #1462 RochfordCouncil - use end of collection week, not the start
+- #2073 retry transient connection failures in the shared HTTP fetch
+- #2098 WiltshireCouncil - capture all same-day collection events
+- #2109 MidSuffolkDistrictCouncil - fix selectors and parsing for redesigned results page
+
+## 0.168.0 (2026-07-13)
+
+### Feat
+
+- LondonBoroughLewisham - replace Selenium scraper with requests-based API client
+
+### Fix
+
+- SomersetCouncil - scope date lookups per-bin, handle missing 'followed by' date
+- #2111 BedfordBoroughCouncil - drop stale /35 path segment, filter past dates
+- WaverleyBoroughCouncil - fix 'u1' tag-name typo, should be 'ul'
+- DarlingtonBoroughCouncil - update selectors for redesigned results page
+- #2139 StaffordshireMoorlandsDistrictCouncil - rewrite for new Syncfusion Public Dashboard
+- EdenDistrictCouncil - delegate to WestMorlandAndFurness backend
+- #2140 SunderlandCityCouncil - bypass Cloudflare with undetected-chromedriver
+- #2141 CeredigionCountyCouncil - capture all schedule panels, not just 'Weekly'
+- #2150 TorridgeDistrictCouncil - reach getRoundCalendarForUPRN via AchieveForms broker
+- #2146 NewcastleCityCouncil - rewrite for ReCollect API
+- #1945 BolsoverCouncil - correctly handle Round B (WeekBlack/WeekBandG=2)
+- #2120 PowysCouncil - dismiss cookie consent prompt before Find address click
+- #2149 HighPeakCouncil - rewrite for new Syncfusion Public Dashboard
+- #2126 FenlandDistrictCouncil - accept PremiseID directly via uprn param
+- BirminghamCityCouncil - import missing date_format from common
+- #2125 StratfordUponAvonCouncil - skip postcode lookup when UPRN already known
+- #2125 StratfordUponAvonCouncil - guard check_postcode for UPRN-only configs
+- guard milton keynes scraper against api error responses
+- update South Kesteven binday scraper
+- #2116 fix SSL errors and session cookies for Vale of White Horse
+- support Babergh's new collection-day table format
+- East Cambs: Use new API backend
+- birmingham city council
+- handle Rugby Council API errors
+- update Rugby Borough Council scraper
+
 ## 0.167.1 (2026-06-02)
 
 ### Fix
